@@ -7,13 +7,14 @@
 #include <vector>
 
 
+
 void framebuffer_size_callback(GLFWwindow * window,int width,int height);
 void processInput(GLFWwindow * window);
 std::vector<float> processColor(std::vector<float> colorVector);
 
 //settings
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1080;
+int SCR_WIDTH = 0;
+int SCR_HEIGHT = 0;
 
 
 int main() {
@@ -22,6 +23,11 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    //Detect and set video resolution
+    SCR_WIDTH = glfwGetVideoMode(glfwGetPrimaryMonitor())->width;
+    SCR_HEIGHT = glfwGetVideoMode(glfwGetPrimaryMonitor())->height;
+
 
     //Create window object and check if it initialised correctly.
     GLFWwindow * window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOPenGlMofo",nullptr, nullptr);
