@@ -11,6 +11,11 @@ void framebuffer_size_callback(GLFWwindow * window,int width,int height);
 void processInput(GLFWwindow * window);
 std::vector<float> processColor(std::vector<float> colorVector);
 
+//settings
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
+
+
 int main() {
     //Setup glfw profile
     glfwInit();
@@ -19,7 +24,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     //Create window object and check if it initialised correctly.
-    GLFWwindow * window = glfwCreateWindow(800, 600, "LearnOPenGlMofo",nullptr, nullptr);
+    GLFWwindow * window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOPenGlMofo",nullptr, nullptr);
     if (window == nullptr)
     {
         std::cout << "Failed to create GLFW window";
@@ -37,12 +42,12 @@ int main() {
     }*/
 
     //Sets OPENGl viewport and registers callback function to resize it.
-    glViewport(0, 0, 1920, 1080);
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     std::vector<float> colorVector = {0.0f,0.0f,0.0f,1.0f};
     //Render Loop
-    while (!glfwWindowShouldClose(window))  
+    while (!glfwWindowShouldClose(window))
     {
         // input
         processInput(window);
