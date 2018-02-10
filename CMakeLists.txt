@@ -25,7 +25,9 @@ add_executable(${program_name} ${SOURCE_FILES})
 include(AddBoost)
 #AddBoost(TARGETS ${program_name} PRIVATE COMPONENTS system)
 
-hunter_add_package(glm)
+if (NOT glm_DIR)
+    hunter_add_package(glm)
+endif ()
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(${program_name} PUBLIC glm)
 
