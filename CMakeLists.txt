@@ -38,3 +38,10 @@ target_link_libraries(${program_name} PUBLIC glew::glew)
 hunter_add_package(glfw)
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${program_name} PUBLIC glfw)
+
+#warnings
+if (CMAKE_BUILD_TYPE MATCHES "Debug")
+    include(TargetOptions)
+    AllWarnings(${program_name})
+endif ()
+SetDefaultSource(${program_name})
