@@ -1,66 +1,32 @@
 #include <cstdlib>
-#include <bits/stdc++.h>
+
 #include<GL/glew.h>
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
 
+#include "Setup/OpenGLSetup.h"
+#include "Shaders/VecterShaderSource.h"
+#include "Shaders/FragmentShaderSource.h"
 
 
-void framebuffer_size_callback(GLFWwindow * window,int width,int height);
+//void framebuffer_size_callback(GLFWwindow * window,int width,int height);
 void processInput(GLFWwindow * window);
 std::vector<float> processColor(std::vector<float> colorVector);
 
-//settings
-int SCR_WIDTH = 0;
-int SCR_HEIGHT = 0;
 
-const char *vertexShaderSource = "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "}\0";
-const char *fragmentShaderSource = "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "void main()\n"
-        "{\n"
-        "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-        "}\n\0";
 
 
 
 int main() {
-    //Setup glfw profile
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    //Detect and set video resolution
-    SCR_WIDTH = glfwGetVideoMode(glfwGetPrimaryMonitor())->width;
-    SCR_HEIGHT = glfwGetVideoMode(glfwGetPrimaryMonitor())->height;
-
-
-    //Create window object and check if it initialised correctly.
-    GLFWwindow * window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOPenGlMofo",nullptr, nullptr);
-    if (window == nullptr)
-    {
-        std::cout << "Failed to create GLFW window";
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glewInit();
-
-    //Sets OPENGl viewport and registers callback function to resize it.
-
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    OpenGLSetup default_setup;
+    default_setup.setup();
 
 
 // build and compile our shader program
-    // ------------------------------------
+
     // vertex shader
     int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -74,7 +40,9 @@ int main() {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
-    glDeleteShader(vertexShader);
+
+
+
     // fragment shader
     int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
@@ -86,6 +54,8 @@ int main() {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
+
+    //link program
     unsigned int shaderProgram;
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
@@ -99,56 +69,76 @@ int main() {
 
 
 
+ //Vertex data
 
-
+    //rectangle using EBO
     float vertices[] = {
-            -0.5f,-0.5f,0.0f,
-            0.5f,-0.5f,0.0f,
-            0.0f,0.5f,0.0f
+         0.5f, 0.5f, 0.0f,   // top right
+         0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f   // top left
+
+    };
+
+    unsigned int indices[] = {
+            0,1,3, //first triangle
+            1,2,3  //second triangle
     };
 
 
 
-
-
     //Generate Buffer
-    unsigned int VBO,VAO;
+    unsigned int VBO,VAO,EBO;
+
     glGenBuffers(1, &VBO);
+    glGenBuffers(1,&EBO);
     glGenVertexArrays(1,&VAO);
 
+    // 1. bind Vertex Array Object
     glBindVertexArray(VAO);
-    //Bind buffer to Array Buffer
-    glBindBuffer(GL_ARRAY_BUFFER,VBO);
 
-    //Copy vertex data into buffer memory
+    // 2. copy our vertices array in a vertex buffer for OpenGL to use
+    glBindBuffer(GL_ARRAY_BUFFER,VBO);
     glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);
 
+    // 3. copy our index array in a element buffer for OpenGL to use
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices),indices,GL_STATIC_DRAW);
+
+    // 4. then set the vertex attributes pointers
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
 
+
+
+    //Background color vector init;
     std::vector<float> colorVector = {0.0f,0.0f,0.0f,1.0f};
+
+
     //Render Loop
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(default_setup.window))
     {
         // input
-        processInput(window);
+        processInput(default_setup.window);
 
         //rendering commands
 
-        //colorVector = processColor(colorVector);
-        //glClearColor(colorVector[0],colorVector[1],colorVector[2],colorVector[3]);
-        glClearColor(0.0f,0.0f,0.0f,1.0f);
+        colorVector = processColor(colorVector);
+        glClearColor(colorVector[0],colorVector[1],colorVector[2],colorVector[3]);
+        //glClearColor(0.0f,0.0f,0.0f,1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES,0,3);
+        glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
+        glBindVertexArray(0);
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
         //check and call events and swap buffers
-        glfwSwapBuffers(window);
         glfwPollEvents();
-
+        glfwSwapBuffers(default_setup.window);
     }
 
 
@@ -161,10 +151,10 @@ int main() {
 
 
 
-void framebuffer_size_callback(GLFWwindow * window,int width,int height)
-{
-    glViewport(0,0,width,height);
-}
+//void framebuffer_size_callback(GLFWwindow * window,int width,int height)
+//{
+//    glViewport(0,0,width,height);
+//}
 
 void processInput(GLFWwindow * window)
 {
