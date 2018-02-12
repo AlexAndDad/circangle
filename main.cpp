@@ -40,6 +40,8 @@ int main() {
               0.0f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f   // bottom left
     };
 
+
+
     //Generate buffers for vertices0
     unsigned int VAO,VBO;
     glGenBuffers(1,&VBO);
