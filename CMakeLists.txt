@@ -21,10 +21,11 @@ set(program_name circangle)
 sugar_include (Shaders)
 sugar_include (Setup)
 sugar_files(SOURCE_FILES main.cpp)
-add_executable(${program_name} ${SOURCE_FILES})
+set_source_files_properties(${SHADER_RESOURCES} PROPERTIES HEADER_FILE_ONLY 1)
+add_executable(${program_name} ${SOURCE_FILES} ${SHADER_FILES} ${SHADER_RESOURCES})
 
 include(AddBoost)
-#AddBoost(TARGETS ${program_name} PRIVATE COMPONENTS system)
+AddBoost(TARGETS ${program_name} PRIVATE COMPONENTS system filesystem)
 
 if (NOT glm_DIR)
     hunter_add_package(glm)
