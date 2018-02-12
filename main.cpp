@@ -5,10 +5,10 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
+#include <tgmath.h>
 
 #include "Setup/OpenGLSetup.h"
-#include "Shaders/VecterShaderSource.h"
-#include "Shaders/FragmentShaderSource.h"
+#include "Shaders/Shaders.h"
 
 
 //void framebuffer_size_callback(GLFWwindow * window,int width,int height);
@@ -27,88 +27,42 @@ int main() {
 
 // build and compile our shader program
 
-    // vertex shader
-    int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    // check for shader compile errors
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
+    Shaders ourShader("/home/ahodges/alex_dad/circangle/Shaders/VertexShader.glsl","/home/ahodges/alex_dad/circangle/Shaders/FragmentShader.glsl");
 
 
-
-    // fragment shader
-    int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    // check for shader compile errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-
-    //link program
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram,fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    //-----------------------------------------------------------------------
 
 
-
-
-
- //Vertex data
-
-    //rectangle using EBO
     float vertices[] = {
-         0.5f, 0.5f, 0.0f,   // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left
-
+            //Positions            //colors
+              0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,  // top right
+             -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  // bottom right
+              0.0f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f   // bottom left
     };
 
-    unsigned int indices[] = {
-            0,1,3, //first triangle
-            1,2,3  //second triangle
-    };
-
-
-
-    //Generate Buffer
-    unsigned int VBO,VAO,EBO;
-
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1,&EBO);
+    //Generate buffers for vertices0
+    unsigned int VAO,VBO;
+    glGenBuffers(1,&VBO);
     glGenVertexArrays(1,&VAO);
 
-    // 1. bind Vertex Array Object
+    //Bind vertex array object
     glBindVertexArray(VAO);
 
-    // 2. copy our vertices array in a vertex buffer for OpenGL to use
+    //Bind Vertex buffer object, declare data.
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
     glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);
 
-    // 3. copy our index array in a element buffer for OpenGL to use
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices),indices,GL_STATIC_DRAW);
-
-    // 4. then set the vertex attributes pointers
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0);
+    //Set vertex attribute pointers for vertices
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,6*sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
 
+    //Set vertex attribute pointer for colors
+    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,6*sizeof(float),(void*)(3* sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+
+
+    //-----------------------------------------------------------------------------------
 
 
     //Background color vector init;
@@ -128,17 +82,27 @@ int main() {
         //glClearColor(0.0f,0.0f,0.0f,1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glUseProgram(shaderProgram);
+
+        ourShader.use();
+        //ourShader.setFloat("horOffset",0);
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
-        glBindVertexArray(0);
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glDrawArrays(GL_TRIANGLES,0,3);
+
+       /* float timeValue = glfwGetTime();
+        float greenValue = (sin(timeValue)/2.0f) + 0.5f;
+        int vertexColorLocation = glGetUniformLocation(shaderProgram,"ourColor");
+        glUniform4f(vertexColorLocation,0.0f,greenValue,0.0f,1.0f);
+
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES,0,3);
+        */
+
+
 
 
         //check and call events and swap buffers
-        glfwPollEvents();
         glfwSwapBuffers(default_setup.window);
+        glfwPollEvents();
     }
 
 
