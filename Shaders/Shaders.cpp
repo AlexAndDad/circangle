@@ -4,8 +4,32 @@
 
 #include "Shaders.h"
 
+Shaders::path Shaders::shader_root_;
 
-Shaders::Shaders(const GLchar * vertexPath, const GLchar * fragmentPath)
+void Shaders::deduceRoot(path const& programPath)
+{
+    shader_root_ = programPath.parent_path() / "Shaders";
+}
+
+Shaders::Shaders(path const& vertexPath, path const& fragmentPath)
+: Shaders(internal_flag(), fixPath(vertexPath).c_str(), fixPath(fragmentPath).c_str())
+{
+
+}
+
+auto Shaders::fixPath(path arg) -> path
+{
+    if (not arg.is_absolute())
+    {
+        arg = shader_root_ / arg;
+    }
+
+    return arg;
+}
+
+
+
+Shaders::Shaders(internal_flag, const GLchar * vertexPath, const GLchar * fragmentPath)
 {
     //1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;

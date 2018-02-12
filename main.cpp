@@ -9,7 +9,7 @@
 
 #include "Setup/OpenGLSetup.h"
 #include "Shaders/Shaders.h"
-
+#include <boost/filesystem.hpp>
 
 //void framebuffer_size_callback(GLFWwindow * window,int width,int height);
 void processInput(GLFWwindow * window);
@@ -19,7 +19,11 @@ std::vector<float> processColor(std::vector<float> colorVector);
 
 
 
-int main() {
+int main(int argc, const char* argv[]) {
+
+    Shaders::deduceRoot(argv[0]);
+
+
 
     OpenGLSetup default_setup;
     default_setup.setup();
@@ -27,7 +31,7 @@ int main() {
 
 // build and compile our shader program
 
-    Shaders ourShader("/home/ahodges/alex_dad/circangle/Shaders/VertexShader.glsl","/home/ahodges/alex_dad/circangle/Shaders/FragmentShader.glsl");
+    Shaders ourShader("VertexShader.glsl","FragmentShader.glsl");
 
 
     //-----------------------------------------------------------------------
