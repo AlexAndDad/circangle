@@ -18,6 +18,7 @@ hunter_add_package(sugar)
 find_package(sugar CONFIG REQUIRED)
 
 set(program_name circangle)
+sugar_include (Textures)
 sugar_include (Shaders)
 sugar_include (Setup)
 sugar_files(SOURCE_FILES main.cpp)

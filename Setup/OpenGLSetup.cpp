@@ -50,6 +50,8 @@ void OpenGLSetup::window_Init()
 void OpenGLSetup::init_GLEW()
 {
     glewInit();
+
+
 }
 
 //Defines Callbacks.

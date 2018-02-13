@@ -1,1 +1,1 @@
-sugar_include(Texture Loader)
+sugar_include(Texture\ Loader)
