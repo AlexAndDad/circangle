@@ -12,6 +12,7 @@ void OpenGLSetup::setup()
     window_Init();
     init_GLEW();
     define_Callbacks();
+
 }
 
 //Setup glfw profile

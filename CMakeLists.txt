@@ -41,6 +41,10 @@ hunter_add_package(glfw)
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${program_name} PUBLIC glfw)
 
+hunter_add_package(stb)
+find_package(stb CONFIG REQUIRED)
+target_link_libraries(${program_name} PUBLIC stb::stb)
+
 #warnings
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
     include(TargetOptions)
