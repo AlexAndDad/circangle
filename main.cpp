@@ -1,7 +1,14 @@
 #include <cstdlib>
 
 #include<GL/glew.h>
-#include <GL/gl.h>
+#include <glm/glm.hpp>
+
+#if __has_include(<OpenGL/gl.h>)
+    #include <OpenGL/gl.h>
+#else
+    #include <GL/gl.h>
+#endif
+
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
@@ -15,42 +22,48 @@
 #include "Shaders/Shaders.h"
 #include <boost/filesystem.hpp>
 #include "stb/stb_image.h"
+#include "Resources/ResourceService.hpp"
 
 
 void processInput(GLFWwindow * window);
 //std::vector<float> processColor(std::vector<float> colorVector);
 
 
+extern ResourceService resources;
 
 
+int main(int argc, const char *argv[])
+{
+    resourceService().deduceRoot(argv[0]);
 
-int main(int argc, const char* argv[]) {
-
-    Shaders::deduceRoot(argv[0]);
     OpenGLSetup default_setup;
     default_setup.setup();
 
 
 // build and compile our shader program
-    Shaders ourShader("VertexShader.glsl","FragmentShader.glsl");
+
+    Shaders ourShader("VertexShader.glsl", "FragmentShader.glsl");
+
+
     //-----------------------------------------------------------------------
+
     stbi_set_flip_vertically_on_load(true);
+
     //Generate texture ID -1
     unsigned int texture;
     glGenTextures(1,&texture);
     //Bind texture
     glBindTexture(GL_TEXTURE_2D,texture);
     //Load texture from file
-    int width,height, nrChannels;
-    unsigned char * data = stbi_load("/home/ahodges/alex_dad/circangle/Textures/container.jpg",&width,&height,&nrChannels,0);
-    if (data)
-    {
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load((resourceService().root() / "Textures/container.jpg").c_str(), &width, &height,
+                                    &nrChannels, 0);
+    if (data) {
         //Generate texture using previously loaded data
-        glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
-    else
-    {
+    else {
         std::cout << "Failed to load texture" << std::endl;
     }
     //Free image data memory
@@ -62,15 +75,14 @@ int main(int argc, const char* argv[]) {
     //Bind texture
     glBindTexture(GL_TEXTURE_2D,texture1);
     //Load texture from file
-    data = stbi_load("/home/ahodges/alex_dad/circangle/Textures/awesomeface.png",&width,&height,&nrChannels,0);
-    if (data)
-    {
+
+    data = stbi_load((resourceService().root() / "Textures/awesomeface.png").c_str(), &width, &height, &nrChannels, 0);
+    if (data) {
         //Generate texture using previously loaded data
-        glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
-    else
-    {
+    else {
         std::cout << "Failed to load texture" << std::endl;
     }
     //Free image data memory
@@ -127,8 +139,7 @@ int main(int argc, const char* argv[]) {
 
 
     //Render Loop
-    while (!glfwWindowShouldClose(default_setup.window))
-    {
+    while (!glfwWindowShouldClose(default_setup.window)) {
         // input
         processInput(default_setup.window);
 
@@ -139,8 +150,8 @@ int main(int argc, const char* argv[]) {
 
 
         ourShader.use();
-        ourShader.setInt("texture1",0);
-        ourShader.setInt("texture2",1);
+        ourShader.setInt("texture1", 0);
+        ourShader.setInt("texture2", 1);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -149,7 +160,7 @@ int main(int argc, const char* argv[]) {
         glBindTexture(GL_TEXTURE_2D, texture1);
 
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,nullptr);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         //check and call events and swap buffers
         glfwSwapBuffers(default_setup.window);
@@ -164,8 +175,8 @@ int main(int argc, const char* argv[]) {
 
 void processInput(GLFWwindow * window)
 {
-    if (glfwGetKey(window,GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window,true);
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
 
 
