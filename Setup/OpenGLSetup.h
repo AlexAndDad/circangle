@@ -7,7 +7,11 @@
 #include <cstdlib>
 
 #include <GL/glew.h>
-#include <GL/gl.h>
+#if __has_include(<OpenGL/gl.h>)
+  #include <OpenGL/gl.h>
+#else
+  #include <GL/gl.h>
+#endif
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>

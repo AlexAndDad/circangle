@@ -3,13 +3,7 @@
 //
 
 #include "Shaders.h"
-
-Shaders::path Shaders::shader_root_;
-
-void Shaders::deduceRoot(path const& programPath)
-{
-    shader_root_ = programPath.parent_path() / "Shaders";
-}
+#include "Resources/ResourceService.hpp"
 
 Shaders::Shaders(path const& vertexPath, path const& fragmentPath)
 : Shaders(internal_flag(), fixPath(vertexPath).c_str(), fixPath(fragmentPath).c_str())
@@ -21,7 +15,7 @@ auto Shaders::fixPath(path arg) -> path
 {
     if (not arg.is_absolute())
     {
-        arg = shader_root_ / arg;
+        arg = resourceService().root() / "Shaders" / arg;
     }
 
     return arg;
