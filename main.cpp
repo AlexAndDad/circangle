@@ -5,7 +5,11 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
-#include <tgmath.h>
+#include <ctgmath>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Setup/OpenGLSetup.h"
 #include "Shaders/Shaders.h"
@@ -13,7 +17,6 @@
 #include "stb/stb_image.h"
 
 
-//void framebuffer_size_callback(GLFWwindow * window,int width,int height);
 void processInput(GLFWwindow * window);
 //std::vector<float> processColor(std::vector<float> colorVector);
 
@@ -24,30 +27,19 @@ void processInput(GLFWwindow * window);
 int main(int argc, const char* argv[]) {
 
     Shaders::deduceRoot(argv[0]);
-
-
-
     OpenGLSetup default_setup;
     default_setup.setup();
 
 
 // build and compile our shader program
-
     Shaders ourShader("VertexShader.glsl","FragmentShader.glsl");
-
-
     //-----------------------------------------------------------------------
-
     stbi_set_flip_vertically_on_load(true);
-
     //Generate texture ID -1
     unsigned int texture;
     glGenTextures(1,&texture);
-
     //Bind texture
     glBindTexture(GL_TEXTURE_2D,texture);
-
-
     //Load texture from file
     int width,height, nrChannels;
     unsigned char * data = stbi_load("/home/ahodges/alex_dad/circangle/Textures/container.jpg",&width,&height,&nrChannels,0);
@@ -63,20 +55,13 @@ int main(int argc, const char* argv[]) {
     }
     //Free image data memory
     stbi_image_free(data);
-
     //------------------------------
-
     //Generate texture ID -2
     unsigned int texture1;
     glGenTextures(1,&texture1);
-
     //Bind texture
     glBindTexture(GL_TEXTURE_2D,texture1);
-
-
-
     //Load texture from file
-
     data = stbi_load("/home/ahodges/alex_dad/circangle/Textures/awesomeface.png",&width,&height,&nrChannels,0);
     if (data)
     {
@@ -90,15 +75,7 @@ int main(int argc, const char* argv[]) {
     }
     //Free image data memory
     stbi_image_free(data);
-
-
-
-
-
-
-
     //-----------------------------------------------------------------------
-
     float vertices[] = {
             //Positions            //colors             //Texture coords
                0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
@@ -106,14 +83,10 @@ int main(int argc, const char* argv[]) {
               -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
               -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f
     };
-
     unsigned int indices[] = {
             0, 1, 3,
             1, 2, 3
     };
-
-
-
     //Generate buffers for vertices0
     unsigned int VAO,VBO,EBO;
     glGenBuffers(1,&VBO);
@@ -142,12 +115,14 @@ int main(int argc, const char* argv[]) {
 
     glVertexAttribPointer(2,2,GL_FLOAT, GL_FALSE,8*sizeof(float), (void*)(6*sizeof(float)));
     glEnableVertexAttribArray(2);
-
     //-----------------------------------------------------------------------------------
+    //GLM Practise
+    glm::vec4 vec(1.0f,0.0f,0.0f,1.0f);
+    glm::mat4 trans(1.0f);
+    trans = glm::translate(trans,glm::vec3(1.0f,1.0f,0.0f));
+    vec = trans * vec;
+    std::cout << vec.x << vec.y << vec.z << " this printed" << std::endl;
 
-
-    //Background color vector init;
-    std::vector<float> colorVector = {0.0f,0.0f,0.0f,1.0f};
 
 
 
@@ -159,8 +134,6 @@ int main(int argc, const char* argv[]) {
 
         //rendering commands
 
-        //colorVector = processColor(colorVector);
-        //glClearColor(colorVector[0],colorVector[1],colorVector[2],colorVector[3]);
         glClearColor(0.3f,0.3f,0.6f,1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -178,27 +151,10 @@ int main(int argc, const char* argv[]) {
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,nullptr);
 
-
-       /* float timeValue = glfwGetTime();
-        float greenValue = (sin(timeValue)/2.0f) + 0.5f;
-        int vertexColorLocation = glGetUniformLocation(shaderProgram,"ourColor");
-        glUniform4f(vertexColorLocation,0.0f,greenValue,0.0f,1.0f);
-
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES,0,3);
-        */
-
-
-
-
         //check and call events and swap buffers
         glfwSwapBuffers(default_setup.window);
         glfwPollEvents();
     }
-
-
-
-
     glfwTerminate();
     return 0;
 }
@@ -206,28 +162,11 @@ int main(int argc, const char* argv[]) {
 
 
 
-//void framebuffer_size_callback(GLFWwindow * window,int width,int height)
-//{
-//    glViewport(0,0,width,height);
-//}
-
 void processInput(GLFWwindow * window)
 {
     if (glfwGetKey(window,GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window,true);
 }
-/*std::vector<float> processColor(std::vector<float> colorVector)
-{
-    float r =  ((float)rand() / RAND_MAX);
-    float g =  ((float)rand() / RAND_MAX);
-    float b =  ((float)rand() / RAND_MAX);
-
-    colorVector[0] = r;
-    colorVector[1] = g;
-    colorVector[2] = b;
-    return colorVector;
-}
-*/
 
 
 
